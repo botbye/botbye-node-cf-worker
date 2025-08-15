@@ -1,0 +1,9 @@
+{
+  "name": "botbye-node-cf-worker",
+  "main": "index.js",
+  "version": "0.1.0",
+  "private": false,
+  "devDependencies": {
+    "botbye-node-core": "^1.0.6"
+  }
+}
