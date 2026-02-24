@@ -6,13 +6,15 @@ type TValidateRequestOptions = Omit<TValidateRequestOptionsCore, "requestInfo" |
 type TBotByeInitOptions = TBotByeInitOptionsCore & {
 	url?: string;
 };
-declare class BotBye {
+export default class BotBye {
 	private serverKey;
 	private url;
+	private initedSend;
 	constructor(options: TBotByeInitOptions);
 	validateRequest(options: TValidateRequestOptions): Promise<TBotByeResponse>;
 	private getFallbackResponse;
 	private makeRequest;
+	private sendInitRequest;
 	private extractHeaders;
 	private extractIp;
 }
