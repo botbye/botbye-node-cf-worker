@@ -1,9 +1,34 @@
 {
-  "name": "botbye-node-cf-worker",
-  "main": "index.js",
-  "version": "0.1.2",
-  "private": false,
-  "devDependencies": {
-    "botbye-node-core": "^1.0.7"
+  "name": "@botbye/cloudflare-worker",
+  "version": "2.0.0",
+  "description": "BotBye! integration for Cloudflare Workers",
+  "main": "src/index.js",
+  "types": "src/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./src/index.js",
+      "require": "./src/index.js",
+      "types": "./src/index.d.ts"
+    }
+  },
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "homepage": "https://botbye.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/botbye/botbye-node-cf-worker"
+  },
+  "dependencies": {
+    "@botbye/node-core": "^2.0.0"
+  },
+  "peerDependencies": {
+    "@cloudflare/workers-types": ">=4"
   }
 }
