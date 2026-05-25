@@ -73,9 +73,6 @@ Use at the edge of your Worker when you just want to know: **was this request ma
 
   customFields?: Record<string, string>;
 
-  config?: {
-    bypassBotValidation?: boolean | null;
-  };
 }
 ```
 
@@ -140,9 +137,6 @@ Use when you can read user context from the request — for example, on a login 
   customFields?: Record<string, string>;
   botbyeResult?: string;
 
-  config?: {
-    bypassBotValidation?: boolean | null;
-  };
 }
 ```
 
@@ -181,6 +175,49 @@ export default {
 };
 ```
 
+#### Linking `validate` and `risk` events
+
+When the same request is evaluated at two layers — for example, once at the edge (`type: "validate"`) and then again inside a domain service (`type: "risk"`) — BotBye can link both events and display them as a single event in the dashboard.
+
+**Step 1 — CF Worker** (edge): run `validate` and capture `botbye_result`:
+
+```javascript
+export default {
+  async fetch(request, env, ctx) {
+    const edgeResult = await evaluate({
+      type: "validate",
+      request: {
+        request,
+        // "x-botbye-token" is an example — pass the token from wherever you store it
+        token: request.headers.get("x-botbye-token"),
+      },
+    });
+    const edgeBotbyeResult = edgeResult.botbye_result;
+    // Pass edgeBotbyeResult downstream — a custom request header, KV, function argument, etc.
+  },
+};
+```
+
+**Step 2 — domain service** (auth, payment, account management): pass it as `botbyeResult` in the `risk` call:
+
+```javascript
+const riskResult = await evaluate({
+  type: "risk",
+  request: { request },
+  event: {
+    type: "login",
+    status: "ATTEMPTED",
+  },
+  user: {
+    accountId: email,
+    email,
+  },
+  botbyeResult: edgeBotbyeResult,
+});
+```
+
+`botbye_result` is optional in the response — if it is absent, omit `botbyeResult` and the events will be recorded independently.
+
 ---
 
 ### `full` — edge check and domain scoring in one call
@@ -211,9 +248,6 @@ Use when the Worker itself is the endpoint and you have all context at once: the
 
   customFields?: Record<string, string>;
 
-  config?: {
-    bypassBotValidation?: boolean | null;
-  };
 }
 ```
 
@@ -270,11 +304,11 @@ type TEvaluationResult =
       risk_score: number;
       scores: Record<string, number>;
       signals: string[];
-      config: { bypass_bot_validation: boolean };
+      botbye_result?: string;
     }
   | {
       decision: "ALLOW" | "BLOCK" | "CHALLENGE";
-      config: { bypass_bot_validation: boolean };
+      botbye_result?: string;
       error: { message: string };
     };
 ```
@@ -297,8 +331,7 @@ Blocked (bot detected):
   "decision": "BLOCK",
   "risk_score": 0.95,
   "scores": { "bot": 0.95 },
-  "signals": ["AutomationTool"],
-  "config": { "bypass_bot_validation": false }
+  "signals": ["AutomationTool"]
 }
 ```
 
@@ -310,8 +343,7 @@ Allowed:
   "decision": "ALLOW",
   "risk_score": 0.05,
   "scores": { "bot": 0.05, "ato": 0.02 },
-  "signals": [],
-  "config": { "bypass_bot_validation": false }
+  "signals": []
 }
 ```
 
@@ -324,8 +356,7 @@ Challenge:
   "risk_score": 0.65,
   "scores": { "bot": 0.65 },
   "signals": ["SuspiciousFingerprint"],
-  "challenge": { "type": "captcha", "token": "..." },
-  "config": { "bypass_bot_validation": false }
+  "challenge": { "type": "captcha", "token": "..." }
 }
 ```
 
@@ -334,7 +365,6 @@ Invalid `serverKey`:
 ```json
 {
   "decision": "ALLOW",
-  "config": { "bypass_bot_validation": true },
   "error": { "message": "[BotBye] Bad Request: Invalid Server Key" }
 }
 ```

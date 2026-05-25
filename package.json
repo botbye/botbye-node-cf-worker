@@ -1,6 +1,6 @@
 {
   "name": "@botbye/cloudflare-worker",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "BotBye! integration for Cloudflare Workers",
   "main": "src/index.js",
   "types": "src/index.d.ts",
@@ -26,7 +26,7 @@
     "url": "https://github.com/botbye/botbye-node-cf-worker"
   },
   "dependencies": {
-    "@botbye/node-core": "^2.0.0"
+    "@botbye/node-core": "^2.1.1"
   },
   "peerDependencies": {
     "@cloudflare/workers-types": ">=4"
