@@ -11,23 +11,23 @@ var __assign = (this && this.__assign) || function () {
     return __assign.apply(this, arguments);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.phishingFactory = exports.phishing = exports.factory = exports.dev = exports.evaluate = exports.init = void 0;
+exports.phishingFactory = exports.phishing = void 0;
 var node_core_1 = require("@botbye/node-core");
-var fetch_http_client_1 = require("@botbye/node-core/fetch-http-client");
+var phishing_fetch_http_client_1 = require("@botbye/node-core/phishing-fetch-http-client");
 var constants_1 = require("./constants");
 var utils_1 = require("./utils");
-var factory = function () {
-    var base = (0, node_core_1.moduleApiFactory)({
-        httpClient: fetch_http_client_1.fetchHttpClient,
+var phishingFactory = function () {
+    var base = (0, node_core_1.phishingModuleApiFactory)({
+        httpClient: phishing_fetch_http_client_1.fetchPhishingHttpClient,
         module: {
             name: constants_1.MODULE_NAME,
             version: constants_1.MODULE_VERSION,
         },
         skipInitCall: true,
-        requestInfoExtractor: utils_1.requestInfoExtractor,
+        catcherRequestInfoExtractor: utils_1.requestInfoExtractor,
     });
     var initWasSend = false;
-    return __assign(__assign({}, base), { evaluate: function () {
+    return __assign(__assign({}, base), { fetchCatcher: function () {
             var args = [];
             for (var _i = 0; _i < arguments.length; _i++) {
                 args[_i] = arguments[_i];
@@ -36,14 +36,9 @@ var factory = function () {
                 base.dev.sendInitCall();
                 initWasSend = true;
             }
-            return base.evaluate.apply(base, args);
+            return base.fetchCatcher.apply(base, args);
         } });
 };
-exports.factory = factory;
-var _a = factory(), init = _a.init, evaluate = _a.evaluate, dev = _a.dev;
-exports.init = init;
-exports.evaluate = evaluate;
-exports.dev = dev;
-var phishing_1 = require("./phishing");
-Object.defineProperty(exports, "phishing", { enumerable: true, get: function () { return phishing_1.phishing; } });
-Object.defineProperty(exports, "phishingFactory", { enumerable: true, get: function () { return phishing_1.phishingFactory; } });
+exports.phishingFactory = phishingFactory;
+var phishing = phishingFactory();
+exports.phishing = phishing;
